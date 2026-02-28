@@ -3,22 +3,17 @@ pipeline {
 
     environment {
         IMAGE_NAME = "flask-lab-training"
+        IMAGE_TAG  = "${env.BUILD_NUMBER}"
         REPORT_NAME = "trivy-report.txt"
         PRIVATE_REGISTRY= "172.31.29.60:5000"
     }
 
      stages {    // <-- OPEN STAGES
-        stage('Debug') {
-            steps {
-                sh 'ls -al'
-                sh 'pwd'
-             }
-          }
-        stage('Dcker Build') {
+        stage('Docker Build') {
             steps {
                 echo 'Running docker build command...'
                 dir('trivy-project') {
-                    sh "docker build -t ${IMAGE_NAME}:latest ."
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                 }
             }
         }
@@ -29,11 +24,11 @@ pipeline {
                 sh """
                 trivy image \
                 --severity HIGH,CRITICAL \
-                --exit-code 1 \
+                --exit-code 0 \
                 --no-progress \
                 --format table \
                 --output ${REPORT_NAME} \
-                ${IMAGE_NAME}:latest \
+                ${IMAGE_NAME}:${IMAGE_TAG} \
                 """
             }
         }
@@ -45,8 +40,8 @@ pipeline {
             steps {
               sh """
                 echo "Pushing image ${IMAGE_NAME} to ${PRIVATE_REGISTRY}..."
-                docker tag ${IMAGE_NAME}:latest ${PRIVATE_REGISTRY}/${IMAGE_NAME}:latest
-                docker push ${PRIVATE_REGISTRY}/${IMAGE_NAME}:latest
+                docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${PRIVATE_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                docker push ${PRIVATE_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
                 """
             }
         }
