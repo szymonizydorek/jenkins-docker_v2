@@ -8,6 +8,11 @@ pipeline {
     }
 
      stages {    // <-- OPEN STAGES
+        stage('Debug') {
+            steps {
+                sh 'ls -al'
+                sh 'pwd'
+                }
         stage('Dcker Build') {
             steps {
                 echo 'Running docker build command...'
