@@ -51,6 +51,8 @@ pipeline {
     post { // <-OPENINING POST
         always {
             archiveArtifacts artifacts: "${REPORT_NAME}", fingerprint: true
+            echo "Clean up Docker images"
+            sh "docker image prune -f"
              }
 
 
