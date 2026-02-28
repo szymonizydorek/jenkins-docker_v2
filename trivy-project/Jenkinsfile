@@ -51,8 +51,9 @@ pipeline {
     post { // <-OPENINING POST
         always {
             archiveArtifacts artifacts: "${REPORT_NAME}", fingerprint: true
-            echo "Clean up Docker images"
-            sh "docker image prune -f"
+             sh """
+             docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | grep ${IMAGE_NAME} | grep -v ${IMAGE_TAG} | awk '{print \$2}' | xargs -r docker rmi
+"""
              }
 
 
