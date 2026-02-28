@@ -52,14 +52,14 @@ pipeline {
         always {
             archiveArtifacts artifacts: "${REPORT_NAME}", fingerprint: true
              sh """
-             docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | grep ${IMAGE_NAME} | grep -v ${IMAGE_TAG} | awk '{print \$2}' | xargs -r docker rmi
-"""
+             echo "Removing docker images ... "
+             docker image ls
+             docker rmi -f ${IMAGE_NAME}:${IMAGE_TAG} || true
+             docker image prune -f
+             """
              }
-
-
-    failure {
-      echo "Image is not secure. See ${REPORT_NAME}" 
-    }
-
+        failure {
+             echo "Image is not secure. See ${REPORT_NAME}" 
+         }
     } // <-CLOSING POST
 }
